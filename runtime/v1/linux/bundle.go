@@ -46,12 +46,18 @@ func newBundle(id, path, workDir string, spec []byte) (b *bundle, err error) {
 		return nil, err
 	}
 	path = filepath.Join(path, id)
+	if _, err := os.Stat(path); err == nil {
+		return nil, fmt.Errorf("container with id exists: %v", id)
+	}
+	workDir = filepath.Join(workDir, id)
+	if _, err := os.Stat(workDir); err == nil {
+		return nil, fmt.Errorf("container with id exists: %v", id)
+	}
 	defer func() {
 		if err != nil {
 			os.RemoveAll(path)
 		}
 	}()
-	workDir = filepath.Join(workDir, id)
 	if err := os.MkdirAll(workDir, 0711); err != nil {
 		return nil, err
 	}
